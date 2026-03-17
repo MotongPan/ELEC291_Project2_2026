@@ -1,4 +1,4 @@
-#define F_CPU 16000000UL
+#include "lcd.h"
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -95,7 +95,7 @@ void SendString(char * s)
 	while(*s != 0) SendByte(*s++);
 }
 
-void GetString(char * s, int nmax)
+/*void GetString(char * s, int nmax)
 {
 	unsigned char c;
 	int n;
@@ -116,6 +116,7 @@ void GetString(char * s, int nmax)
 		}
 	}
 }
+*/
 /*
 int main(void)
 {
