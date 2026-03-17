@@ -5,7 +5,7 @@
 #define sBAUD 9600
 #define sOUTPORT PORTB
 #define sINPORT  PINB
-#define sTXD (1<<PB0) // PB0 is used as sTXd, Pin14 of ATmega328p (DIP28)
+#define sTXD (1<<PC5) // PC5 is used as sTXd, Pin28 of ATmega328p (DIP28)
 #define sRXD (1<<PB1) // PB1 is used as sRXD, Pin15 of ATmega328p (DIP28)
 
 /* Pinout for DIP28 ATMega328P:
