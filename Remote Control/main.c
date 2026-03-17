@@ -3,7 +3,33 @@
 #include <stdlib.h>
 #include "usart.h"
 #include "lcd.h"
+#include "SoftwareUart.h"
 #include <util/delay.h>
+
+#define BUTT0 (1<<4)
+#define BUTT1 (1<<3)
+#define BUTT2 (1<<2)
+#define BUTT3 (1<<1)
+#define BUTT4 (1<<0)
+#define BUTT5 (1<<2)
+#define BUTT6 (1<<1)
+
+#define AUTO 1
+#define MANU 0
+
+unsigned int mode = 0;
+unsigned int page = 0;
+// Auto command signals (paths)
+unsigned char autoP1=0b10000000;
+unsigned char autoP2=0b10000001;
+unsigned char autoP3=0b10000010;
+// Manual Command signals
+unsigned char stop=0b00000000;
+unsigned char forward=0b00000001;
+unsigned char backward=0b00000010;
+unsigned char left=0b00000011;
+unsigned char right=0b00000100;
+unsigned char one80=0b00000101;
 
 /* Pinout for DIP28 ATMega328P:
 
@@ -42,10 +68,60 @@
 //
 // There is also a picture that shows how the LCD is attached to the ATMega328P.
 
+void toggle_mode(void)
+{
+	if(!(PINC&BUTT0))
+	{
+		_delay_ms(20);		//Debounce Press
+		if(!(PINC&BUTT0))
+		{
+			mode^=1;
+			while(!(PINC&BUTT0));
+			_delay_ms(20); 	// Debounce Release
+		}
+	}
+	return;
+}
+
+void stop_car(void)
+{
+	if(!(PINC&BUTT1))
+	{
+		_delay_ms(20);		//Debounce Press
+		if(!(PINC&BUTT1))
+		{
+			SendByte(stop);
+			while(!(PINC&BUTT1));
+			_delay_ms(20); 	// Debounce Release
+		}
+	}
+	return;
+}
+
+void swap_page(void)
+{
+	if(!(PINC&BUTT2))
+	{
+		_delay_ms(20);		//Debounce Press
+		if(!(PINC&BUTT2))
+		{
+			page^=1;
+			while(!(PINC&BUTT2));
+			_delay_ms(20); 	// Debounce Release
+		}
+	}
+	return;
+}
+
 void Configure_Pins(void)
 {
 	DDRB|=0b00000001; // PB0 is output.
 	DDRD|=0b11111000; // PD3, PD4, PD5, PD6, and PD7 are outputs.
+
+	DDRC  &= 0b11100000; // Buttons 0-4
+	PORTC |= 0b00011111; // Activate pull-up in PC0-4
+	DDRB  &= 0b11111001; // Buttons 5-6
+	PORTB |= 0b00000110; // Activate pull-up in PB1-2
 }
 
 int main( void )
@@ -55,6 +131,7 @@ int main( void )
 	usart_init(); // configure the usart and baudrate
 	Configure_Pins();
 	LCD_4BIT();
+	ConfigureSoftwareUART();
 	
 	_delay_ms(500); // Give putty some time to start.
 	printf("ATMega328P 4-bit LCD test.\n");
