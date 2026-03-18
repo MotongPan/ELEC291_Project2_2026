@@ -126,7 +126,7 @@ void TIM2_Handler(void)
     else
         GPIOA->ODR &= ~BIT12;
 }
-//PWM harware initial
+//PWM harware initial（now only the PWM and may add other hardware initial(H-bridge and adc)
 void Hardware_Init(void)
 {
 	// Set up output pins
